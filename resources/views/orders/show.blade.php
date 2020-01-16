@@ -72,11 +72,15 @@
 
 
       </div>
+
+
       <div class="order-summary text-right">
+
         <div class="total-amount">
           <span>订单总价：</span>
           <div class="value">￥{{ $order->total_amount }}</div>
         </div>
+
         <div>
           <span>订单状态：</span>
           <div class="value">
@@ -91,13 +95,21 @@
             @else
               未支付
             @endif
+        </div>
 
-            <!-- 如果订单的发货状态为已发货则展示确认收货按钮 -->
-            @if($order->ship_status === \App\Models\Order::SHIP_STATUS_DELIVERED)
-            <div class="receive-button">
-              <button type="button" id="btn-receive" class="btn btn-sm btn-success">确认收货</button>
+          <!-- 如果订单的发货状态为已发货则展示确认收货按钮 -->
+          @if($order->ship_status === \App\Models\Order::SHIP_STATUS_DELIVERED)
+          <div class="receive-button">
+            <button type="button" id="btn-receive" class="btn btn-sm btn-success">确认收货</button>
+          </div>
+          @endif
+
+          @if(isset($order->extra['refund_disagree_reason']))
+            <div>
+              <span>拒绝退款理由：</span>
+              <div class="value">{{ $order->extra['refund_disagree_reason'] }}</div>
             </div>
-            @endif
+          @endif
 
             <!-- 订单已支付，且退款状态是未退款时展示申请退款按钮 -->
             @if($order->paid_at && $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
@@ -106,19 +118,26 @@
             </div>
             @endif
 
-          </div>
+            <!-- 支付按钮开始 -->
+            @if(!$order->paid_at && !$order->closed)
+            <div class="payment-buttons">
+              <a class="btn btn-primary btn-sm" href="{{ route('payment.alipay', ['order' => $order->id]) }}">支付宝支付</a>
+            </div>
+            @endif
+            <!-- 支付按钮结束 -->
+
         </div>
 
-        <!-- 支付按钮开始 -->
-        @if(!$order->paid_at && !$order->closed)
-        <div class="payment-buttons">
-          <a class="btn btn-primary btn-sm" href="{{ route('payment.alipay', ['order' => $order->id]) }}">支付宝支付</a>
-        </div>
-        @endif
-        <!-- 支付按钮结束 -->
+        
 
       </div>
+
+
+
+    
     </div>
+
+
   </div>
 </div>
 </div>
@@ -176,7 +195,7 @@
           });
       });
     });
-    
+
 
   });
 </script>
